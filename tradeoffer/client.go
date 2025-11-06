@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -26,12 +27,23 @@ type Client struct {
 
 func NewClient(key APIKey, sessionId, steamLogin, steamLoginSecure string) *Client {
 	c := &Client{
-		new(http.Client),
+		&http.Client{},
 		key,
 		sessionId,
 	}
 	community.SetCookies(c.client, sessionId, steamLogin, steamLoginSecure)
 	return c
+}
+
+func (c *Client) SetProxy(proxyURL string) error {
+	proxyURLParsed, err := url.Parse(proxyURL)
+	if err != nil {
+		return fmt.Errorf("failed to parse proxy URL: %w", err)
+	}
+	c.client.Transport = &http.Transport{
+		Proxy: http.ProxyURL(proxyURLParsed),
+	}
+	return nil
 }
 
 func (c *Client) GetOffer(offerId uint64) (*TradeOfferResult, error) {
