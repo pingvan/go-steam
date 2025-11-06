@@ -27,7 +27,7 @@ type Client struct {
 
 func NewClient(key APIKey, sessionId, steamLogin, steamLoginSecure string) *Client {
 	c := &Client{
-		http.DefaultClient,
+		&http.Client{},
 		key,
 		sessionId,
 	}
